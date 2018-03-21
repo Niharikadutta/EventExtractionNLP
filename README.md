@@ -15,3 +15,13 @@
  There are two main files in this sub-repository
  * jee_processData.py : This file parses the event dataset, does some pre-processing and produces a model.
  * evaluateJEE.py : This file runs the main algorithm where it trains and tests the generated model.
+ 
+ ## The Team
+ Abhimanyu Dogra adogra4@asu.edu
+ Diptanshu Purwar dpurwar@asu.edu
+ Natasha Mittal nmittal4@asu.edu
+ Niharika Dutta ndutta2@asu.edu
+
+
+
+
