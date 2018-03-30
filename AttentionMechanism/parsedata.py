@@ -1,8 +1,9 @@
 import json
+import io
 
 def parse_file():
-    file_name = '/home/appleternity/corpus/event_detection/wiki_sentence_annotated.with_trigger.tsv'
-    with open(file_name, 'r', encoding='utf-8') as infile:
+    file_name = 'D:\Academic\ASU\Sem 4\NLP\project\dataset\wiki_sentence_annotated.with_trigger.tsv'
+    with io.open(file_name, 'r', encoding='utf-8') as infile:
         data = []
         for index, line in enumerate(infile):
             row = line.split("\t")
@@ -31,21 +32,22 @@ def parse_file():
                 "argument_list":argument_list
             })
 
-    with open("../data/event_detection.json", 'w', encoding='utf-8') as outfile:
-        json.dump(data, outfile, indent=4)
+    with io.open("D:\Academic\ASU\Sem 4\NLP\project\dataset\event_detection.json", 'w', encoding='utf-8') as outfile:
+        outfile.write(unicode(json.dumps(data, indent=4)))
+        # json.dump(data, outfile, indent=4)
 
 
 def add_entity():
     event_data_path = "/home/appleternity/workspace/lab/event_detection/data/event_detection.new.parse.json.index"
-    with open(event_data_path, 'r', encoding='utf-8') as infile:
+    with io.open(event_data_path, 'r', encoding='utf-8') as infile:
         data = json.load(infile)    
 
     file_name = '/home/appleternity/corpus/event_detection/wiki_sentence_annotated.with_trigger.tsv'
-    with open(file_name, 'r', encoding='utf-8') as infile:
+    with io.open(file_name, 'r', encoding='utf-8') as infile:
         for index, line in enumerate(infile):
             row = line.split('\t')
             sent = row[3]
-            for entity in row[4:]
+            for entity in row[4:]:
                 entity = entity.replace(", ", "++++++++++")
                 split_entity = entity.split(",")
                 split_entity[2].replace("++++++++++", ", ")
@@ -54,13 +56,13 @@ def add_entity():
                 word = sent[start:end]
                 if info[-7:] == "trigger":
                     continue
-                if info == "negative":
+                # if info == "negative":
                     
     
 
 def test_same_sent():
     file_name = '/home/appleternity/corpus/event_detection/wiki_sentence_annotated.with_trigger.tsv'
-    with open(file_name, 'r', encoding='utf-8') as infile:
+    with io.open(file_name, 'r', encoding='utf-8') as infile:
         sentences = [
             line.split("\t")[3]
             for line in infile
@@ -76,7 +78,7 @@ def test_same_sent():
 
 def test_trigger_num():
     file_name = '/home/appleternity/corpus/event_detection/wiki_sentence_annotated.with_trigger.tsv'
-    with open(file_name, 'r', encoding='utf-8') as infile:
+    with io.open(file_name, 'r', encoding='utf-8') as infile:
         multi_trigger_count = 0
         for line in infile:
             row = line.split('\t')
@@ -96,4 +98,4 @@ def test_trigger_num():
 if __name__ == "__main__":
     #parse_file()
     #test_same_sent()
-    test_trigger_num()
+    parse_file()

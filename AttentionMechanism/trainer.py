@@ -23,7 +23,7 @@ class Trainer():
         negative_index = [i for i, _y in enumerate(y) if _y[0]==1]
         positive_index = [i for i, _y in enumerate(y) if _y[0]!=1]
         negative_num = int(len(positive_index)*ratio)
-        negative_index_sample = np.random.choice(negative_index, negative_num, False)
+        negative_index_sample = np.random.choice(negative_index, negative_num, True)
 
         new_data = []
         for d in data:
@@ -375,8 +375,8 @@ class Trainer():
 def train_model():
 
     # Update the glove pretrained model path and the data path in the path variables below
-    glove_path = ""#glove.6B.300d"
-    data_path = ""#event_detection.data.filter.json
+    glove_path = 'D:\Academic\ASU\Sem 4\\NLP\project\dataset\glove.6B.300d'
+    data_path = "D:\Academic\ASU\Sem 4\\NLP\project\dataset\event_detection.data.sample.json"
 
     trigger_type = sorted(trigger_type_dictionary.items(), key=lambda x: x[1])
     trigger_type = [t for t, i in trigger_type if t not in remove_list_less_100]

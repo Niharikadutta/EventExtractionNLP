@@ -33,7 +33,8 @@ class AttentationContextModel:
             entity_embedding = tf.get_variable(
                 name="entities_embedding",
                 shape=[entity_size, entity_dim],
-                initializer=tf.initializers.truncated_normal(),
+                # initializer=tf.initializers.truncated_normal(),
+                initializer=None,
                 trainable=True,
                 dtype=tf.float32
             )
