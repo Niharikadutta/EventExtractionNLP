@@ -329,7 +329,7 @@ class Trainer():
             
             if e%10 == 0:
                 if e%100 == 0:
-                    saver.save(sess, '../model/attention.model.upsampling', global_step=e)
+                    saver.save(sess, 'D:\Academic\ASU\Sem 4\\NLP\project\dataset\\attention.model.upsampling', global_step=e)
         
                 # testing
                 #saver.save(sess, '../model/attention.model')
@@ -356,7 +356,7 @@ class Trainer():
                     test_p_ans_list.extend(p)
                     test_o_ans_list.extend(ans)
 
-                with open("../result/testing_upsampling_{}.res".format(e), 'w', encoding='utf-8') as outfile:
+                with open("D:\Academic\ASU\Sem 4\\NLP\project\dataset\\testing_upsampling_{}.res".format(e), 'w', encoding='utf-8') as outfile:
                     for _p, _ans in zip(test_p_ans_list, test_o_ans_list):
                         outfile.write("{}, {}\n".format(_p, _ans))
 
@@ -391,7 +391,7 @@ def train_model():
         entity_size=len(entity_type_dictionary),
         context_window_size=5,
         batch_size=128,
-        epochs=500,
+        epochs=50,
         machine="/cpu:0",
         negative_ratio=0.1,
         lamb=5,
