@@ -3,6 +3,13 @@ import re
 
 PUNCTUATION = ["-LRB-", "-RRB-", "$", "#", "``", "''", ",", ".", ":", "SYM"]
 
+quant_adj = ["whole", "enough", "little", "all", "hundred", "whole",
+                 "no", "some", "sufficient", "any", "few", "most", "heavily",
+                 "empty", "great", "couple", "half", "many", "much", "less",
+                 "insufficient", "double", "hundreds", "thousands", "substantial",
+                 "single", "each", "one", "two", "first", "second", "last", "several", "every"]
+
+
 # Yahya///0-5///PERSON///NNP///1 -> word///index-index///NER///POS///arg
 PATTERN = re.compile(r"(.+?)///(\d+-\d+)///(.+?)///(.+?)///(.+?)")
 
@@ -32,7 +39,18 @@ class Feature:
             self.entity_type_dictionary.get(entity, 0)
             for entity in entities
         ]
-        return indexs 
+        return indexs
+
+    # change for quant
+    def quantity_type(self, words):
+        indices = [
+            self.entity_type_dictionary.get("QUANTITY", 0)
+            if word in quant_adj
+            else self.zero_index
+            for word in words
+        ]
+        return indices
+
 
     def context_word_feature(self, sent_info):
         tokens = sent_info["tokens"]
@@ -87,12 +105,14 @@ class Feature:
             from pprint import pprint
             pprint(sent_info)
             quit()
+        #pprint(sent_info) # added to see sent_info
         trigger_word = sent_info["trigger_word"]
         trigger_word_index = trigger_word[2] if trigger_word is not None else None
         split = sent_info["split"]
         if trigger_word is None:
             return None
-
+        # if sent_info["sentence"] == "Kosikowski transferred in 1946 to the University of Notre Dame, which was regrouping under head coach Frank Leahy after losing many of its best players to the war effort.":
+        #     pass
         result = []
         for index, token in enumerate(tokens):
             if token[3] in PUNCTUATION: 
@@ -106,6 +126,13 @@ class Feature:
                         if i != index
                 ]
                 context_index = self.words_2_index(context_word)
+                quantity_words = [
+                    tokens[i][0] if 0 <= i < len(tokens) else None
+                    for i in range(index - self.window_size, index + self.window_size + 1)
+                    if i != index
+                    ]
+                # change for quant
+                quantity_index = self.quantity_type(quantity_words)
                 entities = [
                     tokens[i][2] if 0 <= i < len(tokens) else None
                     for i in range(index-self.window_size, index+self.window_size+1)
@@ -120,11 +147,14 @@ class Feature:
                 result.append((
                     target_word_index, 
                     context_index, 
-                    entity_index, 
+                    entity_index,
                     category,
                     arguments,
                     split,
+                    quantity_index     # change for quant
                 ))
+                # print(result)
+
 
         return result
 
