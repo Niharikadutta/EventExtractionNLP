@@ -1,5 +1,6 @@
 import random
 import re
+from nltk.wsd import lesk
 
 PUNCTUATION = ["-LRB-", "-RRB-", "$", "#", "``", "''", ",", ".", ":", "SYM"]
 
@@ -13,12 +14,19 @@ quant_adj = ["whole", "enough", "little", "all", "hundred", "whole",
 # Yahya///0-5///PERSON///NNP///1 -> word///index-index///NER///POS///arg
 PATTERN = re.compile(r"(.+?)///(\d+-\d+)///(.+?)///(.+?)///(.+?)")
 
+def extract_verb_type(word, sent):
+    # print("word: ", word)
+    # print("sentence: ", sent)
+    sense = lesk(sent, word, 'v')
+    if not sense:
+        return "verb.misc"
+    return sense.lexname()
+
 class Feature:
     def __init__(self, word_dictionary, entity_type_dictionary, window_size=10):
         self.word_dictionary = word_dictionary
         self.unknow_index = 0
         self.zero_index = 0
-
         self.entity_type_dictionary = entity_type_dictionary
         self.window_size = window_size
 
@@ -41,7 +49,7 @@ class Feature:
         ]
         return indexs
 
-    # change for quant
+    # change for quant entity
     def quantity_type(self, words):
         indices = [
             self.entity_type_dictionary.get("QUANTITY", 0)
@@ -50,6 +58,24 @@ class Feature:
             for word in words
         ]
         return indices
+
+
+    # change for verb entity
+    def verb_type(self, verb_words, sentence):
+        # verb_type = []
+        indices = [0] * len(verb_words)
+        for i in range(len(verb_words)):
+            if verb_words[i] and "VB" in verb_words[i][1]:
+                indices[i] = self.entity_type_dictionary["VERB"].get(extract_verb_type(verb_words[i][0], sentence), 0)
+
+        # indices = [
+        #     self.entity_type_dictionary["VERB"].get(extract_verb_type(token[0], sentence), 0)
+        #     if token[0] in verb_words and "VB" in token[3]
+        #     else self.zero_index
+        #     for token in tokens
+        # ]
+        return indices
+
 
 
     def context_word_feature(self, sent_info):
@@ -126,13 +152,19 @@ class Feature:
                         if i != index
                 ]
                 context_index = self.words_2_index(context_word)
+                # change for quant entity
                 quantity_words = [
                     tokens[i][0] if 0 <= i < len(tokens) else None
                     for i in range(index - self.window_size, index + self.window_size + 1)
                     if i != index
                     ]
-                # change for quant
                 quantity_index = self.quantity_type(quantity_words)
+                verb_words = [
+                    (tokens[i][0], tokens[i][3]) if 0 <= i < len(tokens) else None
+                    for i in range(index - self.window_size, index + self.window_size + 1)
+                    if i != index
+                    ]
+                verb_index = self.verb_type(verb_words, sent_info["sentence"])
                 entities = [
                     tokens[i][2] if 0 <= i < len(tokens) else None
                     for i in range(index-self.window_size, index+self.window_size+1)
@@ -151,10 +183,10 @@ class Feature:
                     category,
                     arguments,
                     split,
-                    quantity_index     # change for quant
+                    quantity_index,     # change for quant entity
+                    verb_index          # change for verb entity
                 ))
                 # print(result)
-
 
         return result
 

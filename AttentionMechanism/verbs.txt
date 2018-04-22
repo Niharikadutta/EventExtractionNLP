@@ -1,0 +1,15 @@
+verb.body
+verb.change
+verb.cognition
+verb.communication
+verb.competition
+verb.consumption
+verb.contact
+verb.creation
+verb.emotion
+verb.motion
+verb.perception
+verb.possession
+verb.social
+verb.stative
+verb.weather

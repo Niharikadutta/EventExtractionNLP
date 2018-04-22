@@ -31,9 +31,28 @@ entity_type_dictionary = {
     "DATE": 1,
     "PERSON": 2,
     "ORGANIZATION": 3,
-    "LOCATION": 4,
-    "QUANTITY": 5
+    "MONEY": 4,
+    "QUANTITY": 5,
+    "VERB": {
+        "verb.body": 6,
+        "verb.change": 7,
+        "verb.cognition": 8,
+        "verb.communication": 9,
+        "verb.competition": 10,
+        "verb.consumption": 11,
+        "verb.contact": 12,
+        "verb.creation": 13,
+        "verb.emotion": 14,
+        "verb.motion": 15,
+        "verb.perception": 16,
+        "verb.possession": 17,
+        "verb.social": 18,
+        "verb.stative": 19,
+        "verb.weather": 20,
+        "verb.misc": 21
+    }
 }
+
 
 
 trigger_type_dictionary = {

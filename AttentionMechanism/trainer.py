@@ -153,9 +153,10 @@ class Trainer():
         x_arg    = np.array([dd[4] for d in data for dd in d])
         split    = np.array([dd[5] for d in data for dd in d])
         x_quant = np.array([dd[6] for d in data for dd in d])  # change for quant
+        x_verb = np.array([dd[7] for d in data for dd in d])  # change for verb
         y_label  = [dd[3] for d in data for dd in d]
-        (x_target, x_word, x_entity, x_arg, split, x_quant), y_label = self.data_filter(
-            (x_target, x_word, x_entity, x_arg, split, x_quant),
+        (x_target, x_word, x_entity, x_arg, split, x_quant, x_verb), y_label = self.data_filter(
+            (x_target, x_word, x_entity, x_arg, split, x_quant, x_verb),
             y_label,
             config.remove_list
         )
@@ -170,9 +171,9 @@ class Trainer():
         print("y.shape =        ", y.shape)
         print("y_label.length = ", len(y_label))
 
-        self.training_data = self.pack_data((x_target, x_word, x_entity, x_arg, x_quant, y_weight, y), index_list=(split==0))
-        self.eval_data     = self.pack_data((x_target, x_word, x_entity, x_quant, y), index_list=(split==1))
-        self.testing_data  = self.pack_data((x_target, x_word, x_entity, x_quant, y), index_list=(split==2))
+        self.training_data = self.pack_data((x_target, x_word, x_entity, x_arg, x_quant, x_verb, y_weight, y), index_list=(split==0))
+        self.eval_data     = self.pack_data((x_target, x_word, x_entity, x_quant, x_verb, y), index_list=(split==1))
+        self.testing_data  = self.pack_data((x_target, x_word, x_entity, x_quant, x_verb, y), index_list=(split==2))
         
         # sample
         self.training_data = self.upsampling(
@@ -208,6 +209,7 @@ class Trainer():
             target_alpha = tf.placeholder(tf.float32, [None, config.context_window_size*2], name="target_alpha")
             output_weight = tf.placeholder(tf.float32, [None], name='output_weight')
             input_quant = tf.placeholder(tf.int32, [None, config.context_window_size*2], name="input_quantities")
+            input_verb = tf.placeholder(tf.int32, [None, config.context_window_size * 2], name="verb_types")
 
             alpha, predict, drop_rate, regularizer = model_manager.build_model(
                 input_target_word,
@@ -253,7 +255,7 @@ class Trainer():
             p_ans_list = []
             o_ans_list = []
             # training
-            for i, (x_target, x_word, x_entity, x_alpha, x_quant, y_weight, y) in enumerate( # change for quant
+            for i, (x_target, x_word, x_entity, x_alpha, x_quant, x_verb, y_weight, y) in enumerate( # change for quant
                 self.get_batch_data(self.training_data, config.batch_size)
             ):
                 l, _, a, o_ans, p_ans = sess.run(
@@ -264,6 +266,7 @@ class Trainer():
                         input_entities:x_entity,
                         target_alpha:x_alpha,
                         input_quant:x_quant,  # change for quant
+                        input_verb:x_verb,    # change for verb
                         output_weight:y_weight,
                         output:y,
                         drop_rate:config.drop_rate,
@@ -301,7 +304,7 @@ class Trainer():
             eval_rec_list = []
             p_ans_list = []
             o_ans_list = []
-            for i, (x_target, x_word, x_entity, x_quant, y) in enumerate(
+            for i, (x_target, x_word, x_entity, x_quant, x_verb, y) in enumerate(
                 self.get_batch_data(self.eval_data, config.batch_size, phase="eval")
             ):
                 a, p_ans, o_ans = sess.run(
@@ -310,7 +313,8 @@ class Trainer():
                         input_target_word:x_target,
                         input_context_words:x_word,
                         input_entities:x_entity,
-                        input_quant:x_quant,
+                        input_quant:x_quant,  # change for quant
+                        input_verb: x_verb,  # change for verb
                         output:y
                     }
                 )
@@ -342,7 +346,7 @@ class Trainer():
                 test_rec_list = []
                 test_p_ans_list = []
                 test_o_ans_list = []
-                for i, (x_target, x_word, x_entity, x_quant, y) in enumerate(
+                for i, (x_target, x_word, x_entity, x_quant, x_verb, y) in enumerate(
                     self.get_batch_data(self.testing_data, config.batch_size, phase="test")
                 ):
                     a, p, ans, (_pre, _), (_rec, _) = sess.run(
@@ -351,7 +355,8 @@ class Trainer():
                             input_target_word:x_target,
                             input_context_words:x_word,
                             input_entities:x_entity,
-                            input_quant:x_quant,
+                            input_quant:x_quant,  # change for quant
+                            input_verb: x_verb,  # change for verb
                             output:y
                         }
                     )

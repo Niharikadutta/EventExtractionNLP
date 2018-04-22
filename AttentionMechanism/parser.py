@@ -4,6 +4,9 @@ import random
 from pprint import pprint
 import re
 
+
+verb_type_dictionary = {}
+
 def parse_sentences(sent_list):
     res = requests.post(
         'http://localhost:9000/?properties={"annotators": "depparse,parse", "outputFormat": "json"}', 
@@ -324,6 +327,8 @@ def add_argument_info():
 
     with open(file_name+'.error', 'w', encoding='utf-8') as outfile:
         json.dump(error_list, outfile, indent=4)
+
+
 
 def sample_data():
     file_name = "../data/event_detection.data.filter.json"
